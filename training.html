@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Training — Ctrl+Alt+Help</title>
+  <meta name="description" content="Best school-run tech support: Wi‑Fi help, PC tune-ups, printers, 3D printer fixes, and simple websites." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.10/dist/tailwind.min.css">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+  
+<header class="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-slate-800/50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 120 120" class="logo-mark" aria-hidden>
+        <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#34d399" /><stop offset="1" stop-color="#22d3ee" /></linearGradient></defs>
+        <rect x="6" y="6" width="108" height="108" rx="22" fill="url(#g)" opacity="0.15" />
+        <rect x="12" y="18" width="96" height="28" rx="8" fill="url(#g)" />
+        <rect x="12" y="50" width="46" height="28" rx="8" fill="url(#g)" />
+        <rect x="66" y="50" width="42" height="28" rx="8" fill="url(#g)" />
+        <text x="24" y="38" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Ctrl</text>
+        <text x="24" y="70" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Alt</text>
+        <text x="72" y="70" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Help</text>
+      </svg>
+      <div class="leading-tight">
+        <div class="font-extrabold text-lg tracking-tight">Ctrl+Alt+Help</div>
+        <div class="text-xs text-slate-400">Best School-Run Tech Support</div>
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-2 ml-2">
+      <a href="index.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Home</a>
+      <a href="services.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Services</a>
+      <a href="pricing.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Pricing & Payments</a>
+      <a href="team.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Team</a>
+      <a href="training.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 active">Training</a>
+      <a href="cases.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Case Studies</a>
+      <a href="faq.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">FAQ</a>
+      <a href="contact.html" class="px-3 py-2 rounded-2xl text-sm font-medium border border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70 ">Contact</a>
+    </nav>
+    <div class="hidden md:flex ml-auto items-center gap-3">
+      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-2xl text-xs font-semibold border border-slate-700 bg-slate-100 text-slate-900">Student-run</span>
+      <a href="contact.html" class="btn btn-primary">Contact</a>
+      <button class="btn" onclick="openKofi('General support')">☕ Support</button>
+    </div>
+  </div>
+</header>
+
+  
+<section class="px-4 bg-slate-900/40 border-y border-slate-800/60">
+  <div class="max-w-7xl mx-auto py-12 md:py-16">
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-extrabold">Training & Growth</h1>
+      <p class="mt-2 text-slate-300 max-w-3xl">We run mini-lessons every week and keep a team playbook.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card glossy"><div class="font-semibold mb-2">Wi‑Fi Basics</div><ul class="list-disc list-inside text-slate-300 space-y-1"><li>Router placement</li><li>Speed tests</li><li>Channel changes</li></ul></div>
+      <div class="card glossy"><div class="font-semibold mb-2">PC Tune‑Up</div><ul class="list-disc list-inside text-slate-300 space-y-1"><li>Startup apps</li><li>Storage cleanup</li><li>Updates</li></ul></div>
+      <div class="card glossy"><div class="font-semibold mb-2">Printer 101</div><ul class="list-disc list-inside text-slate-300 space-y-1"><li>Drivers</li><li>Default printer</li><li>Test page</li></ul></div>
+      <div class="card glossy"><div class="font-semibold mb-2">Safe Computing</div><ul class="list-disc list-inside text-slate-300 space-y-1"><li>Updates</li><li>Strong passwords</li><li>Backups</li></ul></div>
+      <div class="card glossy"><div class="font-semibold mb-2">Wix Websites</div><ul class="list-disc list-inside text-slate-300 space-y-1"><li>Pages & menus</li><li>Contact forms</li><li>Publishing</li></ul></div>
+    </div>
+    <div class="card glossy mt-8"><h3 class="text-xl font-semibold mb-2">How we log wins</h3><p class="text-slate-300">After each help session, we write a short note: problem → steps → what worked. Over time, this becomes our playbook and makes us faster.</p></div>
+  </div>
+</section>
+
+  
+<footer class="mt-16 border-t border-slate-800/60 bg-slate-950/70">
+  <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8 text-sm">
+    <div>
+      <div class="flex items-center gap-3">
+        <svg viewBox="0 0 120 120" class="logo-mark" aria-hidden>
+          <defs><linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#34d399" /><stop offset="1" stop-color="#22d3ee" /></linearGradient></defs>
+          <rect x="6" y="6" width="108" height="108" rx="22" fill="url(#g3)" opacity="0.15" />
+          <rect x="12" y="18" width="96" height="28" rx="8" fill="url(#g3)" />
+          <rect x="12" y="50" width="46" height="28" rx="8" fill="url(#g3)" />
+          <rect x="66" y="50" width="42" height="28" rx="8" fill="url(#g3)" />
+          <text x="24" y="38" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Ctrl</text>
+          <text x="24" y="70" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Alt</text>
+          <text x="72" y="70" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="800" fill="#0b1220">Help</text>
+        </svg>
+        <div class="leading-tight">
+          <div class="font-extrabold text-lg tracking-tight">Ctrl+Alt+Help</div>
+          <div class="text-xs text-slate-400">Best School-Run Tech Support</div>
+        </div>
+      </div>
+      <p class="mt-3 text-slate-400 max-w-md">Best school-run tech support. Friendly, simple, and safe. We help while we learn.</p>
+    </div>
+    <div>
+      <div class="font-semibold mb-2">Quick links</div>
+      <ul class="grid gap-1 text-slate-300">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="pricing.html">Pricing & Payments</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="training.html">Training</a></li>
+        <li><a href="cases.html">Case Studies</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="font-semibold mb-2">Support</div>
+      <ul class="grid gap-1 text-slate-300">
+        <li><button class="hover:text-white" onclick="openKofi('General support')">Donate / Shop on Ko‑fi</button></li>
+        <li class="text-slate-400">Online — Remote only</li>
+      </ul>
+    </div>
+  </div>
+  <div class="text-center text-xs text-slate-500 pb-8">© <span id="year"></span> Ctrl+Alt+Help. Learning in public. • Built with hand-coded HTML/CSS/JS.</div>
+</footer>
+
+  <script src="assets/app.js"></script>
+  
+</body>
+</html>
