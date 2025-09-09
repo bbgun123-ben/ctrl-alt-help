@@ -1,519 +1,1234 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ctrl+Alt+Help — Neighborhood Tech</title>
-  <meta name="description" content="Student‑run neighborhood IT support: Wi‑Fi help, PC tune-ups, printers, and simple websites." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%2334d399'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='108' height='108' rx='22' fill='url(%23g)' opacity='0.15'/%3E%3Crect x='12' y='18' width='96' height='28' rx='8' fill='url(%23g)'/%3E%3Crect x='12' y='50' width='46' height='28' rx='8' fill='url(%23g)'/%3E%3Crect x='66' y='50' width='42' height='28' rx='8' fill='url(%23g)'/%3E%3Ctext x='24' y='38' font-family='Inter,Arial' font-size='14' font-weight='800' fill='%230b1220'%3ECtrl%3C/text%3E%3Ctext x='24' y='70' font-family='Inter,Arial' font-size='14' font-weight='800' fill='%230b1220'%3EAlt%3C/text%3E%3Ctext x='72' y='70' font-family='Inter,Arial' font-size='14' font-weight='800' fill='%230b1220'%3EHelp%3C/text%3E%3C/svg%3E" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script> tailwind.config = { theme: { extend: {} } };</script>
-  <!-- React 18 + Babel for JSX in-browser -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>html, body { background:#0b1220; color:#e5e7eb; }</style>
-</head>
-<body class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-  <div id="root"></div>
-
-  <script type="text/babel">
-    // ============== CONFIG ==============
-    const BRAND = {
-      name: "Ctrl+Alt+Help",
-      slogan: "Resetting your tech, one fix at a time.",
-      email: "benniebluest@icloud.com",
-  // Service is entirely remote-only, so reflect that in the city field
-  city: "Online — Remote only",
-      kofi: "https://ko-fi.com/bennietzfanya"
-    };
-
-    const NAV_LINKS = [
-      { key: "home", label: "Home" },
-      { key: "services", label: "Services" },
-      { key: "team", label: "Team" },
-      { key: "training", label: "Training" },
-      { key: "cases", label: "Case Studies" },
-      { key: "faq", label: "FAQ" },
-      { key: "contact", label: "Contact" },
-    ];
-
-    const SERVICES = [
-      { title: "PC Tune‑Up", icon: "cpu", paidFrom: "$20", bullets: ["Speed up slow computers","Remove bloat + cleanup storage","Update OS and apps"] },
-      { title: "Wi‑Fi Rescue", icon: "wifi", paidFrom: "$15", bullets: ["Fix weak/spotty connections","Router basics + placement tips","Test speed & stability"] },
-      { title: "Printer Setup", icon: "printer", paidFrom: "$15", bullets: ["Connect to Wi‑Fi or cable","Driver install & defaults","Paper/ink basics & test page"] },
-      { title: "New Device Setup", icon: "sparkle", paidFrom: "$10", bullets: ["Install popular apps","Safety settings & backups","Email + cloud sign‑in help"] },
-      { title: "Website Basics (Wix)", icon: "globe", paidFrom: "$10/hr", bullets: ["Create or edit a simple site","Add pages, forms, images","Publish & share safely"] },
-      { title: "Custom Website (HTML/JS)", icon: "globe", paidFrom: "$30/hr", bullets: ["Hand-coded site (HTML/CSS/JS)","Domain + hosting setup (with parent/guardian approval)","Simple updates guide"] },
-      { title: "Safety Check", icon: "shield", paidFrom: "$25", bullets: ["Basic malware/virus scan","Password & update check","Safe‑browsing tips"] },
-    
-      { title: "3D Printer Help (Online)", icon: "sparkle", paidFrom: "$25", bullets: ["Unclog nozzles + filament jams","Bed leveling + first‑layer troubleshooting","Slicer settings tips + filament selection","Remote guidance only (no in‑person)"] },];
-
-    const FAQS = [
-      { q: "Are you professionals?", a: "We're a student‑run neighborhood team. We take it seriously, but this is also how we learn real IT by helping the community. For advanced issues, we'll recommend a trusted adult technician." },
-      { q: "Do you charge money?", a: "We often start free for neighbors while training. Donations are appreciated but optional. Advanced work may have a small fee at affordable rates; we always quote first—no surprises." },
-      { q: "Can you help remotely?", a: "Yes—our sessions are online-only and may use safe screen‑sharing (with a parent/guardian involved). We do not offer in-person visits." },
-      { q: "What do you need from me?", a: "Describe the problem, your device type, and what you've already tried. If you're under 18, please have a parent/guardian involved." },
-    ];
-
-    const CASES = [
-      { title: "Wi‑Fi dead zones", summary: "Moved router, changed channel, and added a simple extender—internet went from spotty to stable." },
-      { title: "Super slow laptop", summary: "Uninstalled heavy startup apps, cleared storage, updated OS—boot time cut in half." },
-      { title: "Printer won’t print", summary: "Installed drivers, set default printer, checked ink—test page worked." },
-      { title: "Simple Wix website", summary: "Built a clean homepage with contact form and gallery for a local hobby." },
-    ];
-
-    // ============== ROUTER ==============
-    function useHashRoute(initial = "home") {
-      const [route, setRoute] = React.useState(() => (window.location.hash.replace("#","") || initial));
-      React.useEffect(() => {
-        const onHash = () => setRoute((window.location.hash.replace("#","") || "home"));
-        window.addEventListener("hashchange", onHash);
-        return () => window.removeEventListener("hashchange", onHash);
-      }, []);
-      const navigate = (key) => { window.location.hash = key; setRoute(key); };
-      return { route, navigate };
-    }
-
-    // ============== UI PRIMS ==============
-    const Icon = ({name, className=""}) => {
-      const stroke = "currentColor";
-      switch(name){
-        case "menu": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><path strokeWidth="2" strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>);
-        case "cpu": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><rect x="4" y="4" width="16" height="16" rx="2" strokeWidth="2"/><rect x="9" y="9" width="6" height="6" rx="1" strokeWidth="2"/><path strokeWidth="2" d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>);
-        case "wifi": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><path strokeWidth="2" strokeLinecap="round" d="M2 8.5C6.5 4.7 11.5 4.7 16 8.5"/><path strokeWidth="2" strokeLinecap="round" d="M4.5 11.5C8 8.8 13 8.8 16.5 11.5"/><path strokeWidth="2" strokeLinecap="round" d="M7 14.5c2-1.5 5-1.5 7 0"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/></svg>);
-        case "printer": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><rect x="6" y="3" width="12" height="6" rx="1" strokeWidth="2"/><rect x="5" y="9" width="14" height="8" rx="2" strokeWidth="2"/><rect x="8" y="17" width="8" height="4" rx="1" strokeWidth="2"/></svg>);
-        case "shield": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><path strokeWidth="2" d="M12 2l7 3v6c0 5.5-3.5 8.5-7 9-3.5-.5-7-3.5-7-9V5l7-3z"/><path strokeWidth="2" d="M9 12l2 2 4-4"/></svg>);
-        case "globe": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><circle cx="12" cy="12" r="9" strokeWidth="2"/><path strokeWidth="2" d="M3 12h18M12 3c2.5 3 2.5 15 0 18M7 6.5c3 .8 7 .8 10 0M7 17.5c3-.8 7-.8 10 0"/></svg>);
-        case "sparkle": return (<svg viewBox="0 0 24 24" className={className} fill="none" stroke={stroke}><path strokeWidth="2" d="M12 2l1.8 4.2L18 8l-4.2 1.8L12 14l-1.8-4.2L6 8l4.2-1.8L12 2z"/><path strokeWidth="2" d="M5 19l.9 2 .9-2 .9-.9L6.8 18 6 16.2 5.2 18 3.3 18.1 5 19z"/></svg>);
-        default: return null;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Ctrl+Alt+Help — Online Tech Support, Repair &amp; Canva Design
+    </title>
+    <meta
+      name="description"
+      content="Remote IT support, repairs, and Canva designs: Wi‑Fi help, PC tune-ups, printers, 3D printers, Raspberry Pi servers, and simple websites."
+    />
+    <meta
+      name="keywords"
+      content="remote tech support, online computer repair, Wi-Fi help, PC tune-up, 3D printer repair, Raspberry Pi server, website help, Canva design"
+    />
+    <meta name="author" content="Ctrl+Alt+Help team" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ctrlalthelp.tech/" />
+    <meta
+      property="og:title"
+      content="Ctrl+Alt+Help — Online Tech Support, Repair &amp; Canva Design"
+    />
+    <meta
+      property="og:description"
+      content="Remote IT support, repairs, and Canva designs: Wi‑Fi help, PC tune-ups, printers, 3D printers, Raspberry Pi servers, and simple websites."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ctrlalthelp.tech/" />
+    <meta
+      property="og:image"
+      content="https://ctrlalthelp.tech/assets/logo.png"
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Ctrl+Alt+Help — Online Tech Support, Repair &amp; Canva Design"
+    />
+    <meta
+      name="twitter:description"
+      content="Remote IT support, repairs, and Canva designs: Wi‑Fi help, PC tune-ups, printers, 3D printers, Raspberry Pi servers, and simple websites."
+    />
+    <meta
+      name="twitter:image"
+      content="https://ctrlalthelp.tech/assets/logo.png"
+    />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Ctrl+Alt+Help",
+        "url": "https://ctrlalthelp.tech/",
+        "logo": "https://ctrlalthelp.tech/assets/logo.png",
+        "description": "Remote IT support, repairs, and Canva designs: Wi‑Fi help, PC tune-ups, printers, 3D printers, Raspberry Pi servers, and simple websites.",
+        "email": "benniebluest@icloud.com",
+        "sameAs": ["https://ko-fi.com/bennietzfanya"]
       }
-    };
+    </script>
+    <!-- Tailwind CSS -->
+    <script>
+      tailwind.config = { theme: { extend: {} } };
+    </script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- React 18 + Babel for JSX in-browser -->
+    <script
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+      crossorigin
+      defer
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+      crossorigin
+      defer
+    ></script>
+    <script
+      src="https://unpkg.com/@babel/standalone/babel.min.js"
+      defer
+    ></script>
+    <style>
+      html,
+      body {
+        background: #0b1220;
+        color: #e5e7eb;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+  >
+    <div id="root"></div>
 
-    const Badge = ({children, subtle=false, className=""}) => (
-      <span className={(subtle ? "bg-slate-800/50 text-slate-300 " : "bg-slate-100 text-slate-900 ") + "inline-flex items-center gap-1 px-3 py-1 rounded-2xl text-xs font-semibold border border-slate-700 " + className}>{children}</span>
-    );
-
-    const Card = ({children, className=""}) => (
-      <div className={"rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg/30 " + className}>{children}</div>
-    );
-
-    const HeaderBlock = ({title, subtitle}) => (
-      <div className="mb-8">
-        <h2 className="text-3xl md:text-4xl font-extrabold">{title}</h2>
-        {subtitle && <p className="mt-2 text-slate-300 max-w-3xl">{subtitle}</p>}
-      </div>
-    );
-
-    // ============== LOGO (fixed) ==============
-    const LogoMark = ({className="w-8 h-8"}) => (
-      <svg viewBox="0 0 120 120" className={className} aria-hidden>
-        <defs>
-          <linearGradient id="g" x1="0" x2="1">
-            <stop offset="0" stopColor="#34d399" />
-            <stop offset="1" stopColor="#22d3ee" />
-          </linearGradient>
-        </defs>
-        {/* background tile */}
-        <rect x="6" y="6" width="108" height="108" rx="22" fill="url(#g)" opacity="0.15" />
-        {/* top key: Ctrl (full width) */}
-        <rect x="12" y="18" width="96" height="28" rx="8" fill="url(#g)" />
-        {/* bottom keys: adjusted widths so "Help" never clips */}
-        <rect x="12" y="50" width="46" height="28" rx="8" fill="url(#g)" />
-        <rect x="66" y="50" width="42" height="28" rx="8" fill="url(#g)" />
-        <text x="24" y="38" fontFamily="ui-sans-serif, system-ui" fontSize="14" fontWeight="800" fill="#0b1220">Ctrl</text>
-        <text x="24" y="70" fontFamily="ui-sans-serif, system-ui" fontSize="14" fontWeight="800" fill="#0b1220">Alt</text>
-        {/* center the "Help" label within the right key */}
-        <text x="72" y="70" fontFamily="ui-sans-serif, system-ui" fontSize="14" fontWeight="800" fill="#0b1220">Help</text>
-      </svg>
-    );
-
-    const Logo = () => (
-      <div className="flex items-center gap-3">
-        <LogoMark className="w-9 h-9" />
-        <div className="leading-tight">
-          <div className="font-extrabold text-lg tracking-tight">{BRAND.name}</div>
-          <div className="text-xs text-slate-400">{BRAND.slogan}</div>
-        </div>
-      </div>
-    );
-
-    const Section = ({children, subtle=false, className=""}) => (
-      <section className={(subtle ? "bg-slate-900/40 border-y border-slate-800/60 " : "") + "px-4 " + className}>
-        <div className="py-12 md:py-16">{children}</div>
-      </section>
-    );
-
-    const Stat = ({n, label}) => (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-3">
-        <div className="text-2xl font-extrabold">{n}</div>
-        <div className="text-xs text-slate-400">{label}</div>
-      </div>
-    );
-
-    const MiniKey = ({children}) => (
-      <div className="px-4 py-2 rounded-xl bg-slate-100 text-slate-900 font-extrabold shadow">{children}</div>
-    );
-
-    const HeroIllustration = () => (
-      <div className="relative aspect-[4/3] rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-2xl">
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 30%, #34d399 0, transparent 50%), radial-gradient(circle at 80% 70%, #22d3ee 0, transparent 50%)" }} />
-        <div className="absolute inset-0 grid place-items-center">
-          <div className="grid gap-4 text-center">
-            <LogoMark className="w-24 h-24 mx-auto" />
-            <div className="text-xl text-slate-200">Friendly, simple, safe</div>
-            <div className="flex justify-center gap-3">
-              <MiniKey>Ctrl</MiniKey><MiniKey>Alt</MiniKey><MiniKey>Help</MiniKey>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-
-    const MemberCard = ({name, role, desc}) => (
-      <Card>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-900 font-extrabold">{name.split(" ").map(n=>n[0]).slice(0,2).join("")}</div>
-          <div>
-            <div className="font-semibold">{name}</div>
-            <div className="text-sm text-slate-400">{role}</div>
-          </div>
-        </div>
-        <p className="mt-3 text-slate-300">{desc}</p>
-      </Card>
-    );
-
-    const TestimonialRow = () => {
-      const items = [
-        { quote: "They were super polite and fixed our printer. Love that they’re learning while helping the neighborhood!", who: "Neighbor" },
-        { quote: "Internet kept dropping—now it’s smooth. They explained everything so I actually understood it.", who: "Neighbor" },
-        { quote: "Built a simple Wix site for my hobby and showed me how to add photos. Easy!", who: "Neighbor" },
-      ];
-      return (
-        <div className="mt-10 grid md:grid-cols-3 gap-4">
-          {items.map((t, i) => (
-            <Card key={i}><p className="italic text-slate-200">“{t.quote}”</p><div className="mt-3 text-slate-400 text-sm">— {t.who}</div></Card>
-          ))}
-        </div>
-      );
-    };
-
-    // ============== PAGES ==============
-    function HomePage(){
-      return (<>
-        <Section className="pt-10 pb-16">
-          <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                {BRAND.name}
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300">Neighborhood Tech Support</span>
-              </h1>
-              <p className="mt-4 text-lg text-slate-300">
-                We’re a kid‑led team helping our community with PCs, Wi‑Fi, printers, and simple websites — while learning real IT skills along the way.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a href="#contact" className="px-5 py-3 rounded-2xl bg-emerald-400 text-slate-900 font-semibold shadow">Get Help</a>
-                <a href="#services" className="px-5 py-3 rounded-2xl border border-slate-700 hover:bg-slate-800/60">See Services</a>
-                <a href={"mailto:"+BRAND.email+"?subject="+encodeURIComponent("Schedule a conversation")+"&body="+encodeURIComponent("Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.")} className="px-5 py-3 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow">Schedule a conversation</a>
-                <Badge className="ml-1">Student‑run • {BRAND.city}</Badge>
-              </div>
-              <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-3 text-center text-slate-300 text-sm">
-                <Stat n="50+" label="Fixes practiced" />
-                <Stat n="< 24h" label="Typical reply" />
-                <Stat n="100%" label="Friendly vibes" />
-              </div>
-            </div>
-            <div className="relative"><HeroIllustration /></div>
-          </div>
-        </Section>
-
-        <Section subtle>
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">What we help with</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {SERVICES.map((s) => (
-                <Card key={s.title}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Icon name={s.icon} className="w-6 h-6" />
-                    <h3 className="text-xl font-semibold">{s.title}</h3>
-                  </div>
-                  <ul className="list-disc list-inside text-slate-300 space-y-1">
-                    {s.bullets.map((b,i)=>(<li key={i}>{b}</li>))}
-                  </ul>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </Section>
-
-        <Section>
-          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
-            <Card>
-              <h3 className="text-xl font-semibold mb-2">How it works</h3>
-              {/* Clarify online-only assistance and remove in‑person language */}
-              <p className="text-slate-300">
-                Tell us your issue. We reply with easy steps and, if needed, set up a quick online screen‑share with a parent/guardian involved when applicable.
-              </p>
-            </Card>
-            <Card><h3 className="text-xl font-semibold mb-2">Community first</h3><p className="text-slate-300">We start free while we train. Tips/donations are optional. We’ll refer advanced issues to adult pros.</p></Card>
-            <Card><h3 className="text-xl font-semibold mb-2">Learning together</h3><p className="text-slate-300">Each case is a mission. We log what worked in our team playbook and turn lessons into simple guides.</p></Card>
-          </div>
-        </Section>
-      </>);
-    }
-
-    function ServicesPage(){
-      return (
-        <Section>
-          <div className="max-w-7xl mx-auto">
-            <HeaderBlock title="Services" subtitle="Friendly neighborhood tech help—simple, safe, and clear." />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {SERVICES.map((s) => (
-                <Card key={s.title} className="flex flex-col">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Icon name={s.icon} className="w-7 h-7" />
-                    <h3 className="text-xl font-semibold">{s.title}</h3>
-                  </div>
-                  <ul className="list-disc list-inside text-slate-300 space-y-1 flex-1">
-                    {s.bullets.map((b,i)=>(<li key={i}>{b}</li>))}
-                  </ul>
-                  {s.title === "Custom Website (HTML/JS)" && (<p className="mt-2 text-emerald-200 text-sm">This website was built using this option.</p>)}
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge subtle>Student‑run</Badge>
-                      {s.paidFrom && (<Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-500/30">Paid option • from {s.paidFrom}</Badge>)}
-                    </div>
-                    <a href="#contact" className="text-emerald-300 hover:text-emerald-200 font-medium">Contact us →</a>
-                  </div>
-                </Card>
-              ))}
-            </div>
-            <div className="mt-10 p-5 rounded-2xl border border-emerald-700/40 bg-emerald-900/20">
-              <div className="text-emerald-200 space-y-2">
-                <p>💡 We also help with <strong>Wix</strong> or simple webpage updates.</p>
-                <p>🌐 <strong>Online‑only:</strong> All sessions are remote and may use safe screen‑sharing (with a parent/guardian involved).</p>
-                <p>💵 <strong>Advanced services:</strong> Deeper work like full malware cleanup, complex Wi‑Fi reconfiguration, or multi‑page website setups may have a small fee at <em>affordable rates</em>. We always quote first — no surprises.</p>
-                <p>🧩 <strong>Custom websites:</strong> Hand‑coded HTML/CSS/JS with domain setup <em>from $35</em> (with parent/guardian approval).</p>
-                <div className="pt-2">
-                  <a href={"mailto:"+BRAND.email+"?subject="+encodeURIComponent("Schedule a conversation")+"&body="+encodeURIComponent("Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.")} className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow">
-                    Schedule a conversation
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-      );
-    }
-
-    function TeamPage(){
-      return (
-        <Section>
-          <div className="max-w-7xl mx-auto">
-            <HeaderBlock title="Meet the Team" subtitle="We’re kids learning real IT by helping our neighbors." />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <MemberCard name="Bennie" role="Tech Lead & Trainer" desc="Builds PCs and servers, loves Raspberry Pi, and writes our step‑by‑step playbooks. Handles advanced troubleshooting, teaches the team, and keeps quality high." />
-              <MemberCard name="Jason" role="Support Tech (Advanced)" desc="Strong with networking and Windows fixes—great at diagnosing Wi‑Fi issues, doing clean tune‑ups, and assisting on complex cases with Bennie." />
-              <MemberCard name="Carter" role="Head Sales & Marketing" desc="Our head salesman and marketing lead. Friendly communicator who helps neighbors understand options, sets expectations, and coordinates simple website builds and upgrades." />
-              <MemberCard name="Judah" role="Help Desk (Primary)" desc="Primary help desk representative—handles calls and email replies, triages requests, and keeps our response times fast. One of our top performers." />
-            </div>
-            <div className="mt-10 grid md:grid-cols-2 gap-6">
-              <Card><h3 className="text-xl font-semibold mb-2">Our promise</h3><p className="text-slate-300">Be kind, be clear, keep learning. If something’s beyond us, we’ll say so and help you find the right pro.</p></Card>
-              <Card><h3 className="text-xl font-semibold mb-2">Safety first</h3><p className="text-slate-300">For screen‑shares or in‑home visits, we involve a parent/guardian. We never ask for your passwords.</p></Card>
-            </div>
-          </div>
-        </Section>
-      );
-    }
-
-    function TrainingPage(){
-      const topics = [
-        { title: "Wi‑Fi Basics", points: ["Router placement", "Speed tests", "Channel changes"] },
-        { title: "PC Tune‑Up", points: ["Startup apps", "Storage cleanup", "Updates"] },
-        { title: "Printer 101", points: ["Drivers", "Default printer", "Test page"] },
-        { title: "Safe Computing", points: ["Updates", "Strong passwords", "Backups"] },
-        { title: "Wix Websites", points: ["Pages & menus", "Contact forms", "Publishing"] },
-      ];
-      return (
-        <Section>
-          <div className="max-w-7xl mx-auto">
-            <HeaderBlock title="Training & Growth" subtitle="We run mini‑lessons every week and keep a team playbook." />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {topics.map((t) => (
-                <Card key={t.title}>
-                  <h3 className="text-lg font-semibold mb-2">{t.title}</h3>
-                  <ul className="list-disc list-inside text-slate-300 space-y-1">
-                    {t.points.map((p, i)=>(<li key={i}>{p}</li>))}
-                  </ul>
-                </Card>
-              ))}
-            </div>
-            <Card className="mt-8">
-              <h3 className="text-xl font-semibold mb-2">How we log wins</h3>
-              <p className="text-slate-300">After each help session, we write a short note: problem → steps → what worked. Over time, this becomes our playbook and makes us faster.</p>
-            </Card>
-          </div>
-        </Section>
-      );
-    }
-
-    function CasesPage(){
-      return (
-        <Section>
-          <div className="max-w-7xl mx-auto">
-            <HeaderBlock title="Case Studies" subtitle="A few examples of problems we solved." />
-            <div className="grid md:grid-cols-2 gap-6">
-              {CASES.map((c) => (
-                <Card key={c.title}>
-                  <h3 className="text-lg font-semibold">{c.title}</h3>
-                  <p className="mt-2 text-slate-300">{c.summary}</p>
-                </Card>
-              ))}
-            </div>
-            <TestimonialRow />
-          </div>
-        </Section>
-      );
-    }
-
-    function FAQPage(){
-      return (
-        <Section>
-          <div className="max-w-5xl mx-auto">
-            <HeaderBlock title="FAQ" subtitle="Quick answers to common questions." />
-            <div className="grid gap-4">
-              {FAQS.map((f, i) => (
-                <details key={i} className="group rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <summary className="cursor-pointer font-semibold flex items-center justify-between">
-                    <span>{f.q}</span>
-                    <span className="text-slate-400 group-open:hidden">+</span>
-                    <span className="text-slate-400 hidden group-open:inline">–</span>
-                  </summary>
-                  <p className="mt-2 text-slate-300">{f.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </Section>
-      );
-    }
-
-    function ContactPage(){
-      const onMail = () => {
-        const subject = encodeURIComponent("Help request");
-        const body = encodeURIComponent("Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.");
-        window.location.href = `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
+    <script type="text/babel">
+      // ============== CONFIG ==============
+      const BRAND = {
+        name: "Ctrl+Alt+Help",
+        slogan: "Expert remote tech support, repairs, and Canva designs.",
+        email: "benniebluest@icloud.com",
+        // Service is entirely remote-only, so reflect that in the city field
+        city: "Online — Remote only",
+        kofi: "https://ko-fi.com/bennietzfanya",
       };
-      return (
-        <Section>
-          <div className="max-w-4xl mx-auto">
-            <HeaderBlock title="Contact" subtitle="Tell us what’s going on and we’ll reply soon." />
-            <Card>
-              <div className="grid gap-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Card><h4 className="font-semibold">Email</h4><a className="text-emerald-300" href={`mailto:${BRAND.email}`}>{BRAND.email}</a></Card>
-                  <Card><h4 className="font-semibold">Availability</h4><p className="text-slate-300">{BRAND.city}</p></Card>
-                </div>
-                <div className="mt-2">
-                  <a href={`mailto:${BRAND.email}?subject=${encodeURIComponent('Schedule a conversation')}&body=${encodeURIComponent('Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.')}`} className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow">Schedule a conversation</a>
-                  <a href={BRAND.kofi} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-emerald-400/60 text-emerald-300 hover:bg-slate-800/50 ml-3">☕ Donate / Shop</a>
-                </div>
-                <Card className="border-amber-500/40 bg-amber-900/20">
-                  <p className="text-amber-100">🔒 We never ask for your passwords. For screen‑shares or home visits, please have a parent/guardian involved.</p>
-                </Card>
-              </div>
-            </Card>
-          </div>
-        </Section>
+
+      const NAV_LINKS = [
+        { key: "home", label: "Home" },
+        { key: "services", label: "Services" },
+        { key: "team", label: "Team" },
+        { key: "training", label: "Training" },
+        { key: "cases", label: "Case Studies" },
+        { key: "faq", label: "FAQ" },
+        { key: "contact", label: "Contact" },
+      ];
+
+      const SERVICES = [
+        {
+          title: "PC Tune‑Up",
+          icon: "cpu",
+          paidFrom: "$20",
+          bullets: [
+            "Speed up slow computers",
+            "Remove bloat + cleanup storage",
+            "Update OS and apps",
+          ],
+        },
+        {
+          title: "Wi‑Fi Rescue",
+          icon: "wifi",
+          paidFrom: "$15",
+          bullets: [
+            "Fix weak/spotty connections",
+            "Router basics + placement tips",
+            "Test speed & stability",
+          ],
+        },
+        {
+          title: "Printer Setup",
+          icon: "printer",
+          paidFrom: "$15",
+          bullets: [
+            "Connect to Wi‑Fi or cable",
+            "Driver install & defaults",
+            "Paper/ink basics & test page",
+          ],
+        },
+        {
+          title: "New Device Setup",
+          icon: "sparkle",
+          paidFrom: "$10",
+          bullets: [
+            "Install popular apps",
+            "Safety settings & backups",
+            "Email + cloud sign‑in help",
+          ],
+        },
+        {
+          title: "Website Basics (Wix)",
+          icon: "globe",
+          paidFrom: "$10/hr",
+          bullets: [
+            "Create or edit a simple site",
+            "Add pages, forms, images",
+            "Publish & share safely",
+          ],
+        },
+        {
+          title: "Custom Website (HTML/JS)",
+          icon: "globe",
+          paidFrom: "$30/hr",
+          bullets: [
+            "Hand-coded site (HTML/CSS/JS)",
+            "Domain + hosting setup (with parent/guardian approval)",
+            "Simple updates guide",
+          ],
+        },
+        {
+          title: "Safety Check",
+          icon: "shield",
+          paidFrom: "$25",
+          bullets: [
+            "Basic malware/virus scan",
+            "Password & update check",
+            "Safe‑browsing tips",
+          ],
+        },
+
+        {
+          title: "3D Printer Repair (Online)",
+          icon: "printer",
+          paidFrom: "$25",
+          bullets: [
+            "Unclog nozzles and filament jams",
+            "Calibrate bed and first layer",
+            "Tune slicer settings for better prints",
+          ],
+        },
+        {
+          title: "Canva Design",
+          icon: "sparkle",
+          paidFrom: "$25",
+          bullets: [
+            "Custom graphics for social media, flyers, and more",
+            "Brand kits and templates tailored to you",
+            "Work directly with Jason, our lead Canva designer",
+          ],
+        },
+        {
+          title: "Raspberry Pi Server",
+          icon: "server",
+          paidFrom: "$5/mo",
+          bullets: [
+            "Whatever server you want on Raspberry Pi or Linux",
+            "Examples: Minecraft Java, Jellyfin (up to 1 TB storage)",
+            "Flexible setup for your needs",
+          ],
+        },
+      ];
+
+      const FAQS = [
+        {
+          q: "Are you professionals?",
+          a: "We are a remote tech support team with real-world experience. For advanced issues, we'll recommend a trusted technician if needed.",
+        },
+        {
+          q: "Do you charge money?",
+          a: "Most quick fixes are free. Advanced work may have a small fee at affordable rates, and we always quote first—no surprises.",
+        },
+        {
+          q: "Can you help remotely?",
+          a: "Yes—our sessions are online-only and may use safe screen‑sharing (with a parent/guardian involved). We do not offer in-person visits.",
+        },
+        {
+          q: "What do you need from me?",
+          a: "Describe the problem, your device type, and what you've already tried. If you're under 18, please have a parent/guardian involved.",
+        },
+      ];
+
+      const CASES = [
+        {
+          title: "Wi‑Fi dead zones",
+          summary:
+            "Moved router, changed channel, and added a simple extender—internet went from spotty to stable.",
+        },
+        {
+          title: "Super slow laptop",
+          summary:
+            "Uninstalled heavy startup apps, cleared storage, updated OS—boot time cut in half.",
+        },
+        {
+          title: "Printer won’t print",
+          summary:
+            "Installed drivers, set default printer, checked ink—test page worked.",
+        },
+        {
+          title: "Simple Wix website",
+          summary:
+            "Built a clean homepage with contact form and gallery for a local hobby.",
+        },
+      ];
+
+      // ============== ROUTER ==============
+      function useHashRoute(initial = "home") {
+        const [route, setRoute] = React.useState(
+          () => window.location.hash.replace("#", "") || initial,
+        );
+        React.useEffect(() => {
+          const onHash = () =>
+            setRoute(window.location.hash.replace("#", "") || "home");
+          window.addEventListener("hashchange", onHash);
+          return () => window.removeEventListener("hashchange", onHash);
+        }, []);
+        const navigate = (key) => {
+          window.location.hash = key;
+          setRoute(key);
+        };
+        return { route, navigate };
+      }
+
+      // ============== UI PRIMS ==============
+      const Icon = ({ name, className = "" }) => {
+        const stroke = "currentColor";
+        const common = {
+          className,
+          fill: "none",
+          stroke,
+          "aria-hidden": true,
+          focusable: "false",
+        };
+        switch (name) {
+          case "menu":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <path
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            );
+          case "cpu":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <rect
+                  x="4"
+                  y="4"
+                  width="16"
+                  height="16"
+                  rx="2"
+                  strokeWidth="2"
+                />
+                <rect x="9" y="9" width="6" height="6" rx="1" strokeWidth="2" />
+                <path
+                  strokeWidth="2"
+                  d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"
+                />
+              </svg>
+            );
+          case "wifi":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <path
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  d="M2 8.5C6.5 4.7 11.5 4.7 16 8.5"
+                />
+                <path
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  d="M4.5 11.5C8 8.8 13 8.8 16.5 11.5"
+                />
+                <path
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  d="M7 14.5c2-1.5 5-1.5 7 0"
+                />
+                <circle cx="12" cy="18" r="1.5" fill="currentColor" />
+              </svg>
+            );
+          case "printer":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <rect
+                  x="6"
+                  y="3"
+                  width="12"
+                  height="6"
+                  rx="1"
+                  strokeWidth="2"
+                />
+                <rect
+                  x="5"
+                  y="9"
+                  width="14"
+                  height="8"
+                  rx="2"
+                  strokeWidth="2"
+                />
+                <rect
+                  x="8"
+                  y="17"
+                  width="8"
+                  height="4"
+                  rx="1"
+                  strokeWidth="2"
+                />
+              </svg>
+            );
+          case "shield":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <path
+                  strokeWidth="2"
+                  d="M12 2l7 3v6c0 5.5-3.5 8.5-7 9-3.5-.5-7-3.5-7-9V5l7-3z"
+                />
+                <path strokeWidth="2" d="M9 12l2 2 4-4" />
+              </svg>
+            );
+          case "globe":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <circle cx="12" cy="12" r="9" strokeWidth="2" />
+                <path
+                  strokeWidth="2"
+                  d="M3 12h18M12 3c2.5 3 2.5 15 0 18M7 6.5c3 .8 7 .8 10 0M7 17.5c3-.8 7-.8 10 0"
+                />
+              </svg>
+            );
+          case "sparkle":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <path
+                  strokeWidth="2"
+                  d="M12 2l1.8 4.2L18 8l-4.2 1.8L12 14l-1.8-4.2L6 8l4.2-1.8L12 2z"
+                />
+                <path
+                  strokeWidth="2"
+                  d="M5 19l.9 2 .9-2 .9-.9L6.8 18 6 16.2 5.2 18 3.3 18.1 5 19z"
+                />
+              </svg>
+            );
+          case "server":
+            return (
+              <svg viewBox="0 0 24 24" {...common}>
+                <rect
+                  x="3"
+                  y="3"
+                  width="18"
+                  height="8"
+                  rx="2"
+                  strokeWidth="2"
+                />
+                <rect
+                  x="3"
+                  y="13"
+                  width="18"
+                  height="8"
+                  rx="2"
+                  strokeWidth="2"
+                />
+                <circle cx="7" cy="7" r="1" fill="currentColor" />
+                <circle cx="11" cy="7" r="1" fill="currentColor" />
+                <circle cx="7" cy="17" r="1" fill="currentColor" />
+                <circle cx="11" cy="17" r="1" fill="currentColor" />
+              </svg>
+            );
+          default:
+            return null;
+        }
+      };
+
+      const Badge = ({ children, subtle = false, className = "" }) => (
+        <span
+          className={
+            (subtle
+              ? "bg-slate-800/50 text-slate-300 "
+              : "bg-slate-100 text-slate-900 ") +
+            "inline-flex items-center gap-1 px-3 py-1 rounded-2xl text-xs font-semibold border border-slate-700 " +
+            className
+          }
+        >
+          {children}
+        </span>
       );
-    }
 
-    // ============== CHROME & FOOTER ==============
-    const NavButton = ({children, active, onClick}) => (
-      <button onClick={onClick}
-        className={"px-3 py-2 rounded-2xl text-sm font-medium transition border " + (active ? "bg-slate-100 text-slate-900 border-slate-200" : "bg-transparent border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70")}>
-        {children}
-      </button>
-    );
-
-    function SiteChrome({ route, onNav }){
-      const [open, setOpen] = React.useState(false);
-      return (
-        <header className="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-slate-800/50">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-            <Logo/>
-            <div className="hidden md:flex items-center gap-1 ml-2">
-              {NAV_LINKS.map(l => (<NavButton key={l.key} active={route===l.key} onClick={()=>onNav(l.key)}>{l.label}</NavButton>))}
-            </div>
-            <div className="md:hidden ml-auto">
-              <button onClick={()=>setOpen(v=>!v)} className="p-2 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60" aria-label="Toggle menu"><Icon name="menu" className="w-5 h-5" /></button>
-            </div>
-            <div className="hidden md:flex ml-auto items-center gap-3">
-              <Badge>Student‑run</Badge>
-              <a href="#contact" onClick={(e)=>{e.preventDefault(); onNav("contact");}} className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow"><Icon name="sparkle" className="w-4 h-4" /> Contact</a>
-              <a href={BRAND.kofi} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-emerald-400/60 text-emerald-300 hover:bg-slate-800/50" aria-label="Support us on Ko‑Fi">☕ Support</a>
-            </div>
-          </div>
-          {open && (
-            <div className="md:hidden border-t border-slate-800/60 bg-slate-900/80">
-              <div className="max-w-7xl mx-auto px-4 py-2 grid gap-2">
-                {NAV_LINKS.map(l => (<button key={l.key} onClick={()=>{onNav(l.key); setOpen(false);}} className="text-left px-3 py-2 rounded-xl hover:bg-slate-800/70">{l.label}</button>))}
-              </div>
-            </div>
-          )}
-        </header>
-      );
-    }
-
-    function SiteFooter(){
-      return (
-        <footer className="mt-16 border-t border-slate-800/60 bg-slate-950/70">
-          <div className="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8 text-sm">
-            <div><Logo /><p className="mt-3 text-slate-400 max-w-md">Student‑run neighborhood IT support. Friendly, simple, and safe. We help while we learn.</p></div>
-            <div><div className="font-semibold mb-2">Quick links</div><ul className="grid gap-1 text-slate-300">{NAV_LINKS.map(l => (<li key={l.key}><a href={"#"+l.key} className="hover:text-white">{l.label}</a></li>))}</ul></div>
-            <div>
-              <div className="font-semibold mb-2">Support</div>
-              <ul className="grid gap-1 text-slate-300">
-                <li><a className="hover:text-white" href={BRAND.kofi} target="_blank" rel="noreferrer">Donate / Shop on Ko‑Fi</a></li>
-                <li className="text-slate-400">{BRAND.city}</li>
-              </ul>
-            </div>
-          </div>
-          <div className="text-center text-xs text-slate-500 pb-8">© {new Date().getFullYear()} {BRAND.name}. Learning in public. • Built with hand‑coded HTML/CSS/JS.</div>
-        </footer>
-      );
-    }
-
-    // ============== APP ==============
-    function Main({ route }){
-      return (
-        <main>
-          {route==="home" && <HomePage/>}
-          {route==="services" && <ServicesPage/>}
-          {route==="team" && <TeamPage/>}
-          {route==="training" && <TrainingPage/>}
-          {route==="cases" && <CasesPage/>}
-          {route==="faq" && <FAQPage/>}
-          {route==="contact" && <ContactPage/>}
-        </main>
-      );
-    }
-
-    function App(){
-      const { route, navigate } = useHashRoute("home");
-      return (
-        <div className="min-h-screen text-slate-100">
-          <SiteChrome route={route} onNav={navigate} />
-          <Main route={route} />
-          <SiteFooter />
+      const Card = ({ children, className = "" }) => (
+        <div
+          className={
+            "rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg/30 " +
+            className
+          }
+        >
+          {children}
         </div>
       );
-    }
 
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App/>);
-  </script>
-</body>
+      const HeaderBlock = ({ title, subtitle }) => (
+        <div className="mb-8">
+          <h2 className="text-3xl md:text-4xl font-extrabold">{title}</h2>
+          {subtitle && (
+            <p className="mt-2 text-slate-300 max-w-3xl">{subtitle}</p>
+          )}
+        </div>
+      );
+
+      // ============== LOGO (fixed) ==============
+      const LogoMark = ({ className = "w-8 h-8" }) => (
+        <svg
+          viewBox="0 0 120 120"
+          className={className}
+          role="img"
+          aria-labelledby="logoTitle"
+        >
+          <title id="logoTitle">Ctrl+Alt+Help logo</title>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stopColor="#34d399" />
+              <stop offset="1" stopColor="#22d3ee" />
+            </linearGradient>
+          </defs>
+          {/* background tile */}
+          <rect
+            x="6"
+            y="6"
+            width="108"
+            height="108"
+            rx="22"
+            fill="url(#g)"
+            opacity="0.15"
+          />
+          {/* top key: Ctrl (full width) */}
+          <rect x="12" y="18" width="96" height="28" rx="8" fill="url(#g)" />
+          {/* bottom keys: adjusted widths so "Help" never clips */}
+          <rect x="12" y="50" width="46" height="28" rx="8" fill="url(#g)" />
+          <rect x="66" y="50" width="42" height="28" rx="8" fill="url(#g)" />
+          <text
+            x="24"
+            y="38"
+            fontFamily="ui-sans-serif, system-ui"
+            fontSize="14"
+            fontWeight="800"
+            fill="#0b1220"
+          >
+            Ctrl
+          </text>
+          <text
+            x="24"
+            y="70"
+            fontFamily="ui-sans-serif, system-ui"
+            fontSize="14"
+            fontWeight="800"
+            fill="#0b1220"
+          >
+            Alt
+          </text>
+          {/* center the "Help" label within the right key */}
+          <text
+            x="72"
+            y="70"
+            fontFamily="ui-sans-serif, system-ui"
+            fontSize="14"
+            fontWeight="800"
+            fill="#0b1220"
+          >
+            Help
+          </text>
+        </svg>
+      );
+
+      const Logo = () => (
+        <div className="flex items-center gap-3">
+          <LogoMark className="w-9 h-9" />
+          <div className="leading-tight">
+            <div className="font-extrabold text-lg tracking-tight">
+              {BRAND.name}
+            </div>
+            <div className="text-xs text-slate-400">{BRAND.slogan}</div>
+          </div>
+        </div>
+      );
+
+      const Section = ({ children, subtle = false, className = "" }) => (
+        <section
+          className={
+            (subtle ? "bg-slate-900/40 border-y border-slate-800/60 " : "") +
+            "px-4 " +
+            className
+          }
+        >
+          <div className="py-12 md:py-16">{children}</div>
+        </section>
+      );
+
+      const Stat = ({ n, label }) => (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-3">
+          <div className="text-2xl font-extrabold">{n}</div>
+          <div className="text-xs text-slate-400">{label}</div>
+        </div>
+      );
+
+      const MiniKey = ({ children }) => (
+        <div className="px-4 py-2 rounded-xl bg-slate-100 text-slate-900 font-extrabold shadow">
+          {children}
+        </div>
+      );
+
+      const HeroIllustration = () => (
+        <div className="relative aspect-[4/3] rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-2xl">
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 30%, #34d399 0, transparent 50%), radial-gradient(circle at 80% 70%, #22d3ee 0, transparent 50%)",
+            }}
+          />
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="grid gap-4 text-center">
+              <LogoMark className="w-24 h-24 mx-auto" />
+              <div className="text-xl text-slate-200">
+                Friendly, simple, safe
+              </div>
+              <div className="flex justify-center gap-3">
+                <MiniKey>Ctrl</MiniKey>
+                <MiniKey>Alt</MiniKey>
+                <MiniKey>Help</MiniKey>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const MemberCard = ({ name, role, desc }) => (
+        <Card>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-900 font-extrabold">
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")}
+            </div>
+            <div>
+              <div className="font-semibold">{name}</div>
+              <div className="text-sm text-slate-400">{role}</div>
+            </div>
+          </div>
+          <p className="mt-3 text-slate-300">{desc}</p>
+        </Card>
+      );
+
+      const TestimonialRow = () => {
+        const items = [
+          {
+            quote: "Super polite and fixed our printer quickly.",
+            who: "Client",
+          },
+          {
+            quote:
+              "Internet kept dropping—now it’s smooth. They explained everything clearly.",
+            who: "Client",
+          },
+          {
+            quote:
+              "Built a simple Wix site for my hobby and showed me how to add photos. Easy!",
+            who: "Client",
+          },
+        ];
+        return (
+          <div className="mt-10 grid md:grid-cols-3 gap-4">
+            {items.map((t, i) => (
+              <Card key={i}>
+                <p className="italic text-slate-200">“{t.quote}”</p>
+                <div className="mt-3 text-slate-400 text-sm">— {t.who}</div>
+              </Card>
+            ))}
+          </div>
+        );
+      };
+
+      // ============== PAGES ==============
+      function HomePage() {
+        return (
+          <>
+            <Section className="pt-10 pb-16">
+              <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+                    {BRAND.name}
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300">
+                      Online Tech Support, Repair &amp; Canva Design
+                    </span>
+                  </h1>
+                  <p className="mt-4 text-lg text-slate-300">
+                    We provide remote assistance for PCs, Wi‑Fi, printers, 3D
+                    printers, Canva designs, and simple websites.
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <a
+                      href="#contact"
+                      className="px-5 py-3 rounded-2xl bg-emerald-400 text-slate-900 font-semibold shadow"
+                    >
+                      Get Help
+                    </a>
+                    <a
+                      href="#services"
+                      className="px-5 py-3 rounded-2xl border border-slate-700 hover:bg-slate-800/60"
+                    >
+                      See Services
+                    </a>
+                    <a
+                      href={
+                        "mailto:" +
+                        BRAND.email +
+                        "?subject=" +
+                        encodeURIComponent("Schedule a conversation") +
+                        "&body=" +
+                        encodeURIComponent(
+                          "Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.",
+                        )
+                      }
+                      className="px-5 py-3 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow"
+                    >
+                      Schedule a conversation
+                    </a>
+                    <Badge className="ml-1">
+                      Remote service • {BRAND.city}
+                    </Badge>
+                  </div>
+                  <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-3 text-center text-slate-300 text-sm">
+                    <Stat n="50+" label="Fixes practiced" />
+                    <Stat n="< 24h" label="Typical reply" />
+                    <Stat n="100%" label="Friendly vibes" />
+                  </div>
+                </div>
+                <div className="relative">
+                  <HeroIllustration />
+                </div>
+              </div>
+            </Section>
+
+            <Section subtle>
+              <div className="max-w-7xl mx-auto">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">
+                  What we help with
+                </h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {SERVICES.map((s) => (
+                    <Card key={s.title}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon name={s.icon} className="w-6 h-6" />
+                        <h3 className="text-xl font-semibold">{s.title}</h3>
+                      </div>
+                      <ul className="list-disc list-inside text-slate-300 space-y-1">
+                        {s.bullets.map((b, i) => (
+                          <li key={i}>{b}</li>
+                        ))}
+                      </ul>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </Section>
+
+            <Section>
+              <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
+                <Card>
+                  <h3 className="text-xl font-semibold mb-2">How it works</h3>
+                  {/* Clarify online-only assistance and remove in‑person language */}
+                  <p className="text-slate-300">
+                    Tell us your issue. We reply with easy steps and, if needed,
+                    set up a quick online screen‑share with a parent/guardian
+                    involved when applicable.
+                  </p>
+                </Card>
+                <Card>
+                  <h3 className="text-xl font-semibold mb-2">
+                    Community first
+                  </h3>
+                  <p className="text-slate-300">
+                    We start free while we train. Tips/donations are optional.
+                    We’ll refer advanced issues to adult pros.
+                  </p>
+                </Card>
+                <Card>
+                  <h3 className="text-xl font-semibold mb-2">
+                    Learning together
+                  </h3>
+                  <p className="text-slate-300">
+                    Each case is a mission. We log what worked in our team
+                    playbook and turn lessons into simple guides.
+                  </p>
+                </Card>
+              </div>
+            </Section>
+          </>
+        );
+      }
+
+      function ServicesPage() {
+        return (
+          <Section>
+            <div className="max-w-7xl mx-auto">
+              <HeaderBlock
+                title="Services"
+                subtitle="Reliable online tech support—simple, safe, and clear."
+              />
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {SERVICES.map((s) => (
+                  <Card key={s.title} className="flex flex-col">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon name={s.icon} className="w-7 h-7" />
+                      <h3 className="text-xl font-semibold">{s.title}</h3>
+                    </div>
+                    <ul className="list-disc list-inside text-slate-300 space-y-1 flex-1">
+                      {s.bullets.map((b, i) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                    {s.title === "Custom Website (HTML/JS)" && (
+                      <p className="mt-2 text-emerald-200 text-sm">
+                        This website was built using this option.
+                      </p>
+                    )}
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge subtle>Remote</Badge>
+                        {s.paidFrom && (
+                          <Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-500/30">
+                            Paid option • from {s.paidFrom}
+                          </Badge>
+                        )}
+                      </div>
+                      <a
+                        href="#contact"
+                        className="text-emerald-300 hover:text-emerald-200 font-medium"
+                      >
+                        Contact us →
+                      </a>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              <div className="mt-10 p-5 rounded-2xl border border-emerald-700/40 bg-emerald-900/20">
+                <div className="text-emerald-200 space-y-2">
+                  <p>
+                    💡 We also help with <strong>Wix</strong> or simple webpage
+                    updates.
+                  </p>
+                  <p>
+                    🌐 <strong>Online‑only:</strong> All sessions are remote and
+                    may use safe screen‑sharing (with a parent/guardian
+                    involved).
+                  </p>
+                  <p>
+                    💵 <strong>Advanced services:</strong> Deeper work like full
+                    malware cleanup, complex Wi‑Fi reconfiguration, or
+                    multi‑page website setups may have a small fee at{" "}
+                    <em>affordable rates</em>. We always quote first — no
+                    surprises.
+                  </p>
+                  <p>
+                    🧩 <strong>Custom websites:</strong> Hand‑coded HTML/CSS/JS
+                    with domain setup <em>from $35</em> (with parent/guardian
+                    approval).
+                  </p>
+                  <div className="pt-2">
+                    <a
+                      href={
+                        "mailto:" +
+                        BRAND.email +
+                        "?subject=" +
+                        encodeURIComponent("Schedule a conversation") +
+                        "&body=" +
+                        encodeURIComponent(
+                          "Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.",
+                        )
+                      }
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow"
+                    >
+                      Schedule a conversation
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Section>
+        );
+      }
+
+      function TeamPage() {
+        return (
+          <Section>
+            <div className="max-w-7xl mx-auto">
+              <HeaderBlock
+                title="Meet the Team"
+                subtitle="Experienced technicians providing remote support."
+              />
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <MemberCard
+                  name="Bennie"
+                  role="Tech Lead & Trainer"
+                  desc="Builds PCs and servers, loves Raspberry Pi, and writes our step‑by‑step playbooks. Handles advanced troubleshooting, teaches the team, and keeps quality high."
+                />
+                <MemberCard
+                  name="Jason"
+                  role="Lead Canva Designer"
+                  desc="Designs Canva graphics and templates—social posts, flyers, and brand kits. Guides clients on visuals and branding."
+                />
+                <MemberCard
+                  name="Carter"
+                  role="Head Sales & Marketing"
+                  desc="Our head salesman and marketing lead. Friendly communicator who helps clients understand options, sets expectations, and coordinates simple website builds and upgrades."
+                />
+                <MemberCard
+                  name="Judah"
+                  role="Help Desk (Primary)"
+                  desc="Primary help desk representative—handles calls and email replies, triages requests, and keeps our response times fast. One of our top performers."
+                />
+              </div>
+              <div className="mt-10 grid md:grid-cols-2 gap-6">
+                <Card>
+                  <h3 className="text-xl font-semibold mb-2">Our promise</h3>
+                  <p className="text-slate-300">
+                    Be kind, be clear, keep learning. If something’s beyond us,
+                    we’ll say so and help you find the right pro.
+                  </p>
+                </Card>
+                <Card>
+                  <h3 className="text-xl font-semibold mb-2">Safety first</h3>
+                  <p className="text-slate-300">
+                    For screen‑shares or in‑home visits, we involve a
+                    parent/guardian. We never ask for your passwords.
+                  </p>
+                </Card>
+              </div>
+            </div>
+          </Section>
+        );
+      }
+
+      function TrainingPage() {
+        const topics = [
+          {
+            title: "Wi‑Fi Basics",
+            points: ["Router placement", "Speed tests", "Channel changes"],
+          },
+          {
+            title: "PC Tune‑Up",
+            points: ["Startup apps", "Storage cleanup", "Updates"],
+          },
+          {
+            title: "Printer 101",
+            points: ["Drivers", "Default printer", "Test page"],
+          },
+          {
+            title: "Safe Computing",
+            points: ["Updates", "Strong passwords", "Backups"],
+          },
+          {
+            title: "Wix Websites",
+            points: ["Pages & menus", "Contact forms", "Publishing"],
+          },
+        ];
+        return (
+          <Section>
+            <div className="max-w-7xl mx-auto">
+              <HeaderBlock
+                title="Training & Growth"
+                subtitle="We run mini‑lessons every week and keep a team playbook."
+              />
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {topics.map((t) => (
+                  <Card key={t.title}>
+                    <h3 className="text-lg font-semibold mb-2">{t.title}</h3>
+                    <ul className="list-disc list-inside text-slate-300 space-y-1">
+                      {t.points.map((p, i) => (
+                        <li key={i}>{p}</li>
+                      ))}
+                    </ul>
+                  </Card>
+                ))}
+              </div>
+              <Card className="mt-8">
+                <h3 className="text-xl font-semibold mb-2">How we log wins</h3>
+                <p className="text-slate-300">
+                  After each help session, we write a short note: problem →
+                  steps → what worked. Over time, this becomes our playbook and
+                  makes us faster.
+                </p>
+              </Card>
+            </div>
+          </Section>
+        );
+      }
+
+      function CasesPage() {
+        return (
+          <Section>
+            <div className="max-w-7xl mx-auto">
+              <HeaderBlock
+                title="Case Studies"
+                subtitle="A few examples of problems we solved."
+              />
+              <div className="grid md:grid-cols-2 gap-6">
+                {CASES.map((c) => (
+                  <Card key={c.title}>
+                    <h3 className="text-lg font-semibold">{c.title}</h3>
+                    <p className="mt-2 text-slate-300">{c.summary}</p>
+                  </Card>
+                ))}
+              </div>
+              <TestimonialRow />
+            </div>
+          </Section>
+        );
+      }
+
+      function FAQPage() {
+        return (
+          <Section>
+            <div className="max-w-5xl mx-auto">
+              <HeaderBlock
+                title="FAQ"
+                subtitle="Quick answers to common questions."
+              />
+              <div className="grid gap-4">
+                {FAQS.map((f, i) => (
+                  <details
+                    key={i}
+                    className="group rounded-2xl border border-slate-800 bg-slate-900/60 p-4"
+                  >
+                    <summary className="cursor-pointer font-semibold flex items-center justify-between">
+                      <span>{f.q}</span>
+                      <span className="text-slate-400 group-open:hidden">
+                        +
+                      </span>
+                      <span className="text-slate-400 hidden group-open:inline">
+                        –
+                      </span>
+                    </summary>
+                    <p className="mt-2 text-slate-300">{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </Section>
+        );
+      }
+
+      function ContactPage() {
+        const onMail = () => {
+          const subject = encodeURIComponent("Help request");
+          const body = encodeURIComponent(
+            "Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.",
+          );
+          window.location.href = `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
+        };
+        return (
+          <Section>
+            <div className="max-w-4xl mx-auto">
+              <HeaderBlock
+                title="Contact"
+                subtitle="Tell us what’s going on and we’ll reply soon."
+              />
+              <Card>
+                <div className="grid gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card>
+                      <h4 className="font-semibold">Email</h4>
+                      <a
+                        className="text-emerald-300"
+                        href={`mailto:${BRAND.email}`}
+                      >
+                        {BRAND.email}
+                      </a>
+                    </Card>
+                    <Card>
+                      <h4 className="font-semibold">Availability</h4>
+                      <p className="text-slate-300">{BRAND.city}</p>
+                    </Card>
+                  </div>
+                  <div className="mt-2">
+                    <a
+                      href={`mailto:${BRAND.email}?subject=${encodeURIComponent("Schedule a conversation")}&body=${encodeURIComponent("Tell us what you need help with and a few times that work for you. If you are under 18, please copy a parent/guardian on the email.")}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow"
+                    >
+                      Schedule a conversation
+                    </a>
+                    <a
+                      href={BRAND.kofi}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-emerald-400/60 text-emerald-300 hover:bg-slate-800/50 ml-3"
+                    >
+                      ☕ Donate / Shop
+                    </a>
+                  </div>
+                  <Card className="border-amber-500/40 bg-amber-900/20">
+                    <p className="text-amber-100">
+                      🔒 We never ask for your passwords. For screen‑shares or
+                      home visits, please have a parent/guardian involved.
+                    </p>
+                  </Card>
+                </div>
+              </Card>
+            </div>
+          </Section>
+        );
+      }
+
+      // ============== CHROME & FOOTER ==============
+      const NavButton = ({ children, active, onClick }) => (
+        <button
+          onClick={onClick}
+          className={
+            "px-3 py-2 rounded-2xl text-sm font-medium transition border " +
+            (active
+              ? "bg-slate-100 text-slate-900 border-slate-200"
+              : "bg-transparent border-transparent text-slate-300 hover:text-white hover:bg-slate-800/70")
+          }
+        >
+          {children}
+        </button>
+      );
+
+      function SiteChrome({ route, onNav }) {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <header className="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-slate-800/50">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+              <Logo />
+              <div className="hidden md:flex items-center gap-1 ml-2">
+                {NAV_LINKS.map((l) => (
+                  <NavButton
+                    key={l.key}
+                    active={route === l.key}
+                    onClick={() => onNav(l.key)}
+                  >
+                    {l.label}
+                  </NavButton>
+                ))}
+              </div>
+              <div className="md:hidden ml-auto">
+                <button
+                  onClick={() => setOpen((v) => !v)}
+                  className="p-2 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60"
+                  aria-label="Toggle menu"
+                >
+                  <Icon name="menu" className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="hidden md:flex ml-auto items-center gap-3">
+                <Badge>Remote</Badge>
+                <a
+                  href="#contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNav("contact");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/90 hover:bg-emerald-400 text-slate-900 font-semibold shadow"
+                >
+                  <Icon name="sparkle" className="w-4 h-4" /> Contact
+                </a>
+                <a
+                  href={BRAND.kofi}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-emerald-400/60 text-emerald-300 hover:bg-slate-800/50"
+                  aria-label="Support us on Ko‑Fi"
+                >
+                  ☕ Support
+                </a>
+              </div>
+            </div>
+            {open && (
+              <div className="md:hidden border-t border-slate-800/60 bg-slate-900/80">
+                <div className="max-w-7xl mx-auto px-4 py-2 grid gap-2">
+                  {NAV_LINKS.map((l) => (
+                    <button
+                      key={l.key}
+                      onClick={() => {
+                        onNav(l.key);
+                        setOpen(false);
+                      }}
+                      className="text-left px-3 py-2 rounded-xl hover:bg-slate-800/70"
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </header>
+        );
+      }
+
+      function SiteFooter() {
+        return (
+          <footer className="mt-16 border-t border-slate-800/60 bg-slate-950/70">
+            <div className="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8 text-sm">
+              <div>
+                <Logo />
+                <p className="mt-3 text-slate-400 max-w-md">
+                  Online tech support and repair. Friendly, simple, and safe.
+                </p>
+              </div>
+              <div>
+                <div className="font-semibold mb-2">Quick links</div>
+                <ul className="grid gap-1 text-slate-300">
+                  {NAV_LINKS.map((l) => (
+                    <li key={l.key}>
+                      <a href={"#" + l.key} className="hover:text-white">
+                        {l.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div className="font-semibold mb-2">Support</div>
+                <ul className="grid gap-1 text-slate-300">
+                  <li>
+                    <a
+                      className="hover:text-white"
+                      href={BRAND.kofi}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Donate / Shop on Ko‑Fi
+                    </a>
+                  </li>
+                  <li className="text-slate-400">{BRAND.city}</li>
+                </ul>
+              </div>
+            </div>
+            <div className="text-center text-xs text-slate-500 pb-8">
+              © {new Date().getFullYear()} {BRAND.name}. Learning in public. •
+              Built with hand‑coded HTML/CSS/JS.
+            </div>
+          </footer>
+        );
+      }
+
+      // ============== APP ==============
+      function Main({ route }) {
+        return (
+          <main>
+            {route === "home" && <HomePage />}
+            {route === "services" && <ServicesPage />}
+            {route === "team" && <TeamPage />}
+            {route === "training" && <TrainingPage />}
+            {route === "cases" && <CasesPage />}
+            {route === "faq" && <FAQPage />}
+            {route === "contact" && <ContactPage />}
+          </main>
+        );
+      }
+
+      function App() {
+        const { route, navigate } = useHashRoute("home");
+        return (
+          <div className="min-h-screen text-slate-100">
+            <SiteChrome route={route} onNav={navigate} />
+            <Main route={route} />
+            <SiteFooter />
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
 </html>
+
